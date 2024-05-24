@@ -5,6 +5,7 @@ statement_count= 1
 statements = {}
 parent = {}
 pos_in_parent = {}
+st_to_id = {}
 
 
 def printf_node(statement_count):
@@ -19,6 +20,7 @@ def traverse_statement(stmt, copy_stmt):
     global statements
     global parent
     global pos_in_parent
+    global st_to_id
 
     for node, copy_node in zip(stmt, copy_stmt):
         if isinstance(node, c_ast.Compound):
@@ -41,17 +43,20 @@ def traverse_statement(stmt, copy_stmt):
                     statements[statement_count] = copy_node.block_items[i]
                     parent[statement_count] = copy_node.block_items
                     pos_in_parent[statement_count] = i
+                    st_to_id[copy_node.block_items[i]] = statement_count
 
                     statement_count+=1
                     child_no +=1
                 elif isinstance(node.block_items[child_no], c_ast.For) or isinstance(node.block_items[child_no], c_ast.While) or isinstance(node.block_items[child_no], c_ast.If):
                     if isinstance(node.block_items[child_no], c_ast.For):
-                        statements[statement_count] = copy_node.block_items[i].init
+                        statements[statement_count] = copy_node.block_items[i]
                                                     # [copy_node.block_items[i].init,
                                                     #    copy_node.block_items[i].cond,
                                                     #    copy_node.block_items[i].next]
                         parent[statement_count] = copy_node.block_items
                         pos_in_parent[statement_count] = i
+                        st_to_id[copy_node.block_items[i]] = statement_count
+
                     traverse_statement(node.block_items[child_no], copy_node.block_items[i])
                     child_no += 1
                 i+=1
@@ -62,6 +67,7 @@ def build_trace_program(file, submission_id, traced_tests_path):
     global statements
     global parent
     global pos_in_parent
+    global st_to_id
 
     initial_ast = parse_file(file, use_cpp=True)
     copy_ast = copy.deepcopy(initial_ast)
@@ -83,6 +89,7 @@ def build_trace_program(file, submission_id, traced_tests_path):
                 statements[statement_count] = copy_node.body.block_items[i]
                 parent[statement_count] = copy_node.body.block_items
                 pos_in_parent[statement_count] = i
+                st_to_id[copy_node.body.block_items[i]] = statement_count
 
                 statement_count += 1
                 child_no+=1
@@ -91,6 +98,8 @@ def build_trace_program(file, submission_id, traced_tests_path):
                     statements[statement_count] = copy_node.body.block_items[i] #[copy_node.body.block_items[i].init, copy_node.body.block_items[i].cond, copy_node.body.block_items[i].next]
                     parent[statement_count] = copy_node.body.block_items
                     pos_in_parent[statement_count] = i
+                    st_to_id[copy_node.body.block_items[i]] = statement_count
+
                 traverse_statement(node.body.block_items[child_no], copy_node.body.block_items[i])
                 child_no += 1
             else:
@@ -106,5 +115,5 @@ def build_trace_program(file, submission_id, traced_tests_path):
     #     print()
     initial_ast.ext[0].body.block_items.insert(0, trace_result_fp)
 
-    return {'traced_program': initial_ast, 'statement_count': statement_count, 'statements': statements, 'initial_ast':copy_ast, 'parent':parent, 'pos_in_parent':pos_in_parent}
+    return {'traced_program': initial_ast, 'statement_count': statement_count, 'statements': statements, 'initial_ast':copy_ast, 'parent':parent, 'pos_in_parent':pos_in_parent, 'st_to_id':st_to_id}
 

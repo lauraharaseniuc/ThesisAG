@@ -1,14 +1,92 @@
 import copy
 import random
 import signal
+import matplotlib.pyplot as plt
 
 from path_helper import build_trace_program
 from pycparser import c_generator, c_ast, c_parser
 from combine_asts import crossover, Chromosome
 import subprocess
 import os
+import time
 
-def create_individual(chromosome):
+def traverse_statement(stmt, chromosome):
+    statement_count = chromosome.statement_count
+    statements = chromosome.statements
+    parents = chromosome.parent
+    pos_in_parent = chromosome.pos_in_parent
+    weights = chromosome.weights
+
+
+    for node in stmt:
+        if isinstance(node, c_ast.Compound):
+            size = len(node.block_items)
+            i=0
+            statement_count += 1
+
+            while i<size:
+                if not (isinstance(node.block_items[i], c_ast.For) or isinstance(node.block_items[i], c_ast.While) or isinstance(node.block_items[i], c_ast.If)):
+                    # add statement in dictionary based on id (statement_count)
+                    statements[statement_count] = node.block_items[i]
+                    parents[statement_count] = node.block_items
+                    pos_in_parent[statement_count] = i
+                    weights[statement_count] = random.randint(0,1)
+                    # weights[statement_count] = parent_weights[statement_count]
+
+                    statement_count+=1
+                elif isinstance(node.block_items[i], c_ast.For) or isinstance(node.block_items[i], c_ast.While) or isinstance(node.block_items[i], c_ast.If):
+                    if isinstance(node.block_items[i], c_ast.For):
+                        statements[statement_count] = node.block_items[i]
+                                                    # [copy_node.block_items[i].init,
+                                                    #    copy_node.block_items[i].cond,
+                                                    #    copy_node.block_items[i].next]
+                        parents[statement_count] = node.block_items
+                        pos_in_parent[statement_count] = i
+                        weights[statement_count] = random.randint(0,1)
+
+                    traverse_statement(node.block_items[i], chromosome)
+                i+=1
+
+
+def traverse_ast(chromosome):
+    ast = chromosome.ast
+    statement_count = chromosome.statement_count
+    statements = chromosome.statements
+    parents = chromosome.parent
+    pos_in_parent = chromosome.pos_in_parent
+    weights = chromosome.weights
+
+    # copiaza in child1 parent1[:cut1]
+    for i in range(len(ast.ext[0].body.block_items)):
+        if not (isinstance(ast.ext[0].body.block_items[i], c_ast.For) or isinstance(
+                ast.ext[0].body.block_items[i], c_ast.While) or isinstance(ast.ext[0].body.block_items[i],c_ast.If)):
+
+            # add statement in dictionary based on id (statement_count)
+            statements[statement_count] = ast.ext[0].body.block_items[i]
+            parents[statement_count] = ast.ext[0].body.block_items
+            pos_in_parent[statement_count] = i
+            weights[statement_count] = random.randint(0,1)
+
+            # weights[statement_count] = weights1[statement_count]
+
+            statement_count += 1
+        elif isinstance(ast.ext[0].body.block_items[i], c_ast.For) or isinstance(ast.ext[0].body.block_items[i], c_ast.While) or isinstance(
+                ast.ext[0].body.block_items[i], c_ast.If):
+            if isinstance(ast.ext[0].body.block_items[i], c_ast.For):
+                statements[statement_count] = ast.ext[0].body.block_items[i]
+                parents[statement_count] = ast.ext[0].body.block_items
+                pos_in_parent[statement_count] = i
+                weights[statement_count] = random.randint(0,1)
+
+            traverse_statement(ast.ext[0].body.block_items[i], chromosome)
+
+
+def create_individual(ast):
+    chromosome = Chromosome({}, {}, {}, {}, 1, ast)
+    traverse_ast(chromosome)
+
+    chromosome.initialise_components()
+
     statements = chromosome.statements
     statement_ids = chromosome.statement_ids
     insert_pool = chromosome.insert_pool
@@ -37,7 +115,7 @@ def create_individual(chromosome):
 
 
 def initialise_population(chromosome, population_size):
-    population = [create_individual(copy.deepcopy(chromosome)) for _ in range(population_size)]
+    population = [create_individual(copy.deepcopy(chromosome.ast)) for _ in range(population_size)]
     return population
 
 
@@ -87,19 +165,24 @@ def execute_tests(problem_id, submission_id):
             with open(test_result_file_path, "w") as output_file:
                 process = subprocess.Popen(["./traced_programs/" + str(submission_id) + "_compiled"],
                                            stdin=open(input_filename_path), stdout=output_file)
-            process.wait()
-            identical_files = are_files_identical(test_result_file_path, output_filename_path)
-            insert = ""
-            if identical_files:
-                insert = "s\n"
-            else:
-                insert = "f\n"
-            with open("./traced_tests/" + str(submission_id) + ".out", "a") as f:
-                f.write(insert)
-
-            # insereaza in 0.out din traced tests s/f\n
+            process.communicate(timeout=1)
         except subprocess.CalledProcessError as e:
             print("Error:", e)
+        except subprocess.TimeoutExpired:
+            print("Process timed out after", 1, "seconds. Terminating...")
+            # Terminate the subprocess if it exceeds the timeout
+        process.kill()
+        process.wait()
+        identical_files = are_files_identical(test_result_file_path, output_filename_path)
+        insert = ""
+        if identical_files:
+            insert = "s\n"
+        else:
+            insert = "f\n"
+        with open("./traced_tests/" + str(submission_id) + ".out", "a") as f:
+            f.write(insert)
+
+            # insereaza in 0.out din traced tests s/f\n
 
 
 def calculate_suspiciousness(submission_id, statement_count):
@@ -182,7 +265,10 @@ def extract_statements_and_weights(submission_id, program_path, problem_id):
 def change_for_init(init, chromosome):
     id = random.randint(0, len(chromosome.rvalues_pool) - 1)
     expr = copy.deepcopy(chromosome.rvalues_pool[id])
-    init.decls[0].init = expr
+    if isinstance(init, c_ast.DeclList):
+        init.decls[0].init = expr
+    elif isinstance(init, c_ast.Assignment):
+        init.rvalue = expr
 
 
 def change_for_cond(cond, chromosome):
@@ -225,10 +311,12 @@ def update_parents(chromosome, parent, inserted_position, new_statement_id):
 
 
 def insert_statement_after(chromosome, statement_id, new_statement):
+    #insert new_statement after statement with id: statement_id
     parent = chromosome.parent
     pos_in_parent = chromosome.pos_in_parent
     statements = chromosome.statements
     weights = chromosome.weights
+    statement_ids = chromosome.statement_ids
 
     insertion_pos = pos_in_parent[statement_id] + 1
     parent[statement_id].insert(insertion_pos, new_statement)
@@ -236,6 +324,7 @@ def insert_statement_after(chromosome, statement_id, new_statement):
     statements[chromosome.statement_count] = new_statement
     parent[chromosome.statement_count] = parent[statement_id]
     pos_in_parent[chromosome.statement_count] = pos_in_parent[statement_id] + 1
+    statement_ids[chromosome.statement_count] = chromosome.statement_count
 
     weights[chromosome.statement_count] = weights[statement_id]
     chromosome.statement_count += 1
@@ -243,7 +332,7 @@ def insert_statement_after(chromosome, statement_id, new_statement):
     update_parents(chromosome, parent[statement_id], pos_in_parent[statement_id] + 1, chromosome.statement_count - 1)
 
 
-def update_parents_after_delete(chromosome, statement_id):
+def update_parents_after_delete(chromosome, statement_id, statement):
     for key, value in chromosome.parent.items():
         if value == chromosome.parent[statement_id] and chromosome.pos_in_parent[key] > chromosome.pos_in_parent[
             statement_id]:
@@ -253,12 +342,12 @@ def update_parents_after_delete(chromosome, statement_id):
     chromosome.pos_in_parent.pop(statement_id)
     chromosome.statements.pop(statement_id)
     chromosome.statement_ids.pop(statement_id)
+    chromosome.weights.pop(statement_id)
 
 
 
 def delete_statement(chromosome, statement_id, statement):
-    update_parents_after_delete(chromosome, statement_id)
-
+    update_parents_after_delete(chromosome, statement_id, statement)
 
 
 def mutate(chromosome):
@@ -356,7 +445,7 @@ def sample(population, population_size):
     return sorted_data[:population_size]
 
 
-def ag(submission_id, problem_id, program_path, population_size):
+def ag(submission_id, problem_id, program_path, population_size, no_epochs):
     extracted = extract_statements_and_weights(submission_id, program_path, problem_id)
     statements = extracted['statements']
     weights = extracted['suspiciousness']
@@ -377,11 +466,21 @@ def ag(submission_id, problem_id, program_path, population_size):
 
     solution_found = False
     solution = None
+    best_solution = None
+    best_fitness = -2
 
     max_fitness = 5
+    current_epoch = 1
 
-    while not solution_found:
-        viable = [p for p in population if p.fitness > 0]
+    epochs = [i for i in range(1, no_epochs+1)]
+    average_time_per_epoch = []
+    average_fitness_per_epoch = []
+
+    while not solution_found and current_epoch <= no_epochs:
+        start_time = time.time()
+        average_fitness = 0
+
+        viable = [p for p in population]
         population = []
         new_population = []
         # parintii se aleg din prima jumatate a populatie (cei cu fitness mai bun)
@@ -389,7 +488,8 @@ def ag(submission_id, problem_id, program_path, population_size):
         for i in range(0, len(parents)-1, 2):
             parent1 = parents[i]
             parent2 = parents[i+1]
-            children = crossover(parent1.ast, parent2.ast, parent1.weights, parent2.weights, parent1.statements, parent2.statements)
+
+            children = crossover(copy.deepcopy(parent1.ast), copy.deepcopy(parent2.ast))
             child1 = children['child1']
             child2 = children['child2']
 
@@ -398,49 +498,84 @@ def ag(submission_id, problem_id, program_path, population_size):
             new_population.append(child1)
             new_population.append(child2)
 
+
         for i in range(len(new_population)):
             if new_population[i].fitness is None:
                 try:
                     new_population[i].fitness = calculate_fitness(new_population[i].ast, problem_id)
                 except subprocess.CalledProcessError as e:
                     new_population[i].fitness = 0
+
         for p in new_population:
+            average_fitness += p.fitness
             if p.fitness == max_fitness:
                 solution_found = True
                 solution = p
                 break
+            elif p.fitness >= best_fitness:
+                best_fitness = p.fitness
+                best_solution = copy.deepcopy(p.ast)
             population.append(mutate(p))
-    return minimize(solution)
 
-#     text="""int main()
-# {
-#   int n;
-#   int v[1001];
-#   int k;
-#   for (int i = 1; i <= n; i++)
-#   {
-#     scanf("%d", &v[i]);
-#   }
-#
-#   for (int i = n - 1; i >= k; i--)
-#   {
-#     v[i] = v[i + 1];
-#   }
-#
-#   n--;
-#   for (int i = 1; i <= n; i++)
-#   {
-#     printf("%d ", v[i]);
-#   }
-#
-#   return 0;
-# }
-# """
-#
+        end_time = time.time()
+
+        elapsed_time = end_time - start_time
+        average_time_per_epoch.append(elapsed_time)
+        average_fitness_per_epoch.append(average_fitness / (len(new_population)))
+
+        print(current_epoch)
+        current_epoch += 1
+
+    save_dir = 'plots'
+    os.makedirs(save_dir, exist_ok=True)
+
+    # Plotting the total_time_epoch against epoch number
+    plt.figure(figsize=(12, 6))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, average_time_per_epoch, marker='o')
+    plt.title('Total Time per Epoch')
+    plt.xlabel('Epoch')
+    plt.ylabel('Total Time (s)')
+    plt.grid(True)  # Add grid for better readability
+
+    # Save the first plot
+    plt.savefig(os.path.join(save_dir, 'total_time_per_epoch_task'+str(problem_id)+'.png'))
+
+    # Plotting the average_price_epoch against epoch number
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, average_fitness_per_epoch, marker='o')
+    plt.title('Average Fitness per Epoch')
+    plt.xlabel('Epoch')
+    plt.ylabel('Average Fitness')
+    plt.grid(True)  # Add grid for better readability
+
+    # Save the second plot
+    plt.savefig(os.path.join(save_dir, 'average_fitness_per_epoch_task'+str(problem_id)+'.png'))
+
+    # Show the plots (optional)
+    if solution:
+        return minimize(solution.ast)
+    else:
+        return best_solution
 
 
 if __name__ == "__main__":
-    ag(0, 1, "problems/0.c", 10)
+    # submision_id = 1
+    # final_patch = ag(submision_id, 2, "problems/1.c", 10)
+    # generator = c_generator.CGenerator()
+    # final_C_patch = generator.visit(final_patch)
+    # with open("./final_patch/"+str(submision_id)+".c", 'w') as f:
+    #     f.write(final_C_patch)
+    for i in range(6,10):
+        submision_id = i
+        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 50, 50)
+        generator = c_generator.CGenerator()
+        final_C_patch = generator.visit(final_patch)
+        with open("./final_patch/" + str(submision_id) + ".c", 'w') as f:
+            f.write(final_C_patch)
+        print("doneeeeeeeeeeeeeeeee")
+    # ag(0, 1, "problems/0.c", 10)
 
 # print("After:")
 # ast.show(offset=2)

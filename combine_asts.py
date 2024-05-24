@@ -1,5 +1,6 @@
 import copy
 import random
+from difflib import SequenceMatcher
 
 from pycparser import c_ast, c_parser, c_generator
 
@@ -25,7 +26,12 @@ class Chromosome:
                     self.add_elem_in_pool(copy.deepcopy(value.next.rvalue), self.rvalues_pool, r_values_show)
                     self.add_elem_in_pool(copy.deepcopy(value.next.lvalue), self.rvalues_pool, r_values_show)
                     self.add_elem_in_pool(copy.deepcopy(value.next.lvalue), self.lvalues_pool, l_values_show)
-                self.add_elem_in_pool(copy.deepcopy(value.init.decls[0].init), self.rvalues_pool, r_values_show)
+                if isinstance(value.init, c_ast.DeclList):
+                    self.add_elem_in_pool(copy.deepcopy(value.init.decls[0].init), self.rvalues_pool, r_values_show)
+                elif isinstance(value.init, c_ast.Assignment):
+                    self.add_elem_in_pool(copy.deepcopy(value.init.lvalue), self.lvalues_pool, l_values_show)
+                    self.add_elem_in_pool(copy.deepcopy(value.init.lvalue), self.rvalues_pool, r_values_show)
+                    self.add_elem_in_pool(copy.deepcopy(value.init.rvalue), self.rvalues_pool, r_values_show)
                 self.add_elem_in_pool(copy.deepcopy(value.cond.right), self.rvalues_pool, r_values_show)
                 self.add_elem_in_pool(copy.deepcopy(value.cond.left), self.lvalues_pool, l_values_show)
                 self.add_elem_in_pool(copy.deepcopy(value.cond.left), self.rvalues_pool, r_values_show)
@@ -36,6 +42,12 @@ class Chromosome:
             elif isinstance(value, c_ast.UnaryOp):
                 self.add_elem_in_pool(copy.deepcopy(value), self.unary_expr_pool, unary_op_show)
 
+    def initialise_components(self):
+        for key, _ in self.statements.items():
+            self.statement_ids[key] = key
+            self.insert_pool = [copy.deepcopy(value) for _, value in self.statements.items()]
+        self.initialise_pools(self.statements)
+
     def __init__(self, statements, weights, parent, pos_in_parent, statement_count, ast):
         self.statements = statements
         self.weights = weights
@@ -45,20 +57,17 @@ class Chromosome:
         self.initial_statement_count = statement_count
         self.ast = ast
         self.statement_ids = {}
-        for key, _ in statements.items():
-            self.statement_ids[key] = key
-        self.insert_pool = [copy.deepcopy(value) for _, value in statements.items()]
         self.unary_expr_pool = []
         self.operators_pool = []
         self.rvalues_pool = []
         self.lvalues_pool = []
         self.exprs_show = []
         self.relational_op_pool = ['<', '>', '<=', '>=']
-        self.initialise_pools(statements)
         self.fitness = None
+        self.initialise_components()
 
 
-def traverse_statement1(stmt, parent_weights):
+def traverse_statement1(stmt):
     global pos
     global statement_count
     global statements
@@ -79,23 +88,25 @@ def traverse_statement1(stmt, parent_weights):
                     statements[statement_count] = node.block_items[i]
                     parents[statement_count] = node.block_items
                     pos_in_parent[statement_count] = i
+                    weights[statement_count] = random.randint(0,1)
                     # weights[statement_count] = parent_weights[statement_count]
 
                     statement_count+=1
                 elif isinstance(node.block_items[i], c_ast.For) or isinstance(node.block_items[i], c_ast.While) or isinstance(node.block_items[i], c_ast.If):
                     if isinstance(node.block_items[i], c_ast.For):
-                        statements[statement_count] = node.block_items[i].init
+                        statements[statement_count] = node.block_items[i]
                                                     # [copy_node.block_items[i].init,
                                                     #    copy_node.block_items[i].cond,
                                                     #    copy_node.block_items[i].next]
                         parents[statement_count] = node.block_items
                         pos_in_parent[statement_count] = i
-                        # weights[statement_count ] = parent_weights[statement_count]
-                    traverse_statement1(node.block_items[i], parent_weights)
+                        weights[statement_count] = random.randint(0,1)
+
+                    traverse_statement1(node.block_items[i])
                 i+=1
 
 
-def traverse_statement2(stmt, parent_weights):
+def traverse_statement2(stmt):
     global pos
     global statement_count
     global statements
@@ -119,7 +130,7 @@ def traverse_statement2(stmt, parent_weights):
                     pos_in_parent[statement_count] = i
 
                     # print(str(statement_count_parent2)+" "+str(len(parent_weights)))
-                    # weights[statement_count] = parent_weights[statement_count_parent2]
+                    weights[statement_count] = random.randint(0,1)
                     # statement_count_parent2 += 1
 
                     statement_count+=1
@@ -132,13 +143,13 @@ def traverse_statement2(stmt, parent_weights):
                         parents[statement_count] = node.block_items
                         pos_in_parent[statement_count] = i
 
-                        # weights[statement_count ] = parent_weights[statement_count_parent2]
+                        weights[statement_count ] = random.randint(0,1)
                         # statement_count_parent2 += 1
-                    traverse_statement2(node.block_items[i], parent_weights)
+                    traverse_statement2(node.block_items[i])
                 i+=1
 
 
-def traverse_ast(parent1, parent2, cut, weights1, weights2, statements2):
+def traverse_ast(parent1, parent2, cut):
     global pos
     global statement_count
     global statements
@@ -157,6 +168,7 @@ def traverse_ast(parent1, parent2, cut, weights1, weights2, statements2):
             statements[statement_count] = parent1.ext[0].body.block_items[i]
             parents[statement_count] = parent1.ext[0].body.block_items
             pos_in_parent[statement_count] = i
+            weights[statement_count] = random.randint(0,1)
 
             # weights[statement_count] = weights1[statement_count]
 
@@ -169,20 +181,11 @@ def traverse_ast(parent1, parent2, cut, weights1, weights2, statements2):
                     i]
                 parents[statement_count] = parent1.ext[0].body.block_items
                 pos_in_parent[statement_count] = i
-                # weights[statement_count] = weights1[statement_count]
-            traverse_statement1(parent1.ext[0].body.block_items[i], weights1)
+                weights[statement_count] = random.randint(0,1)
+
+            traverse_statement1(parent1.ext[0].body.block_items[i])
 
     parent1.ext[0].body.block_items = parent1.ext[0].body.block_items[:cut]
-    weight1_id_start = 0
-    weight1_id_stop = statement_count-1
-
-    st_count=1
-    for key in weights1.keys():
-        if key>=weight1_id_start and key<=weight1_id_stop:
-            weights[st_count] = weights1[key]
-            st_count += 1
-
-    weight2_id_start = 0
 
     for i in range(cut, len(parent2.ext[0].body.block_items)):
         if not (isinstance(parent2.ext[0].body.block_items[i], c_ast.For) or isinstance(
@@ -193,10 +196,7 @@ def traverse_ast(parent1, parent2, cut, weights1, weights2, statements2):
             statements[statement_count] = parent2.ext[0].body.block_items[i]
             parents[statement_count] = parent2.ext[0].body.block_items
             pos_in_parent[statement_count] = i
-
-
-            # weights[statement_count] = weights2[statement_count_parent2]
-            # statement_count_parent2 += 1
+            weights[statement_count] = random.randint(0,1)
 
             statement_count += 1
         elif isinstance(parent2.ext[0].body.block_items[i], c_ast.For) or isinstance(parent2.ext[0].body.block_items[i],
@@ -208,29 +208,16 @@ def traverse_ast(parent1, parent2, cut, weights1, weights2, statements2):
                 parents[statement_count] = parent2.ext[0].body.block_items
                 pos_in_parent[statement_count] = i
 
-
-                # weights[statement_count] = weights2[statement_count_parent2]
+                weights[statement_count] = random.randint(0,1)
                 # statement_count_parent2 += 1
-            traverse_statement2(parent2.ext[0].body.block_items[i], weights2)
+            traverse_statement2(parent2.ext[0].body.block_items[i])
 
     parent1.ext[0].body.block_items.extend(parent2.ext[0].body.block_items[cut:])
-
-    if cut<= len(parent2.ext[0].body.block_items)-1:
-        for key, value in statements2.items():
-            if str(value) == str(parent2.ext[0].body.block_items[cut]):
-                weight2_id_start = key
-                break
-
-        for key in weights2.keys():
-            if key>=weight2_id_start:
-                weights[st_count] = weights2[key]
-                st_count += 1
 
     return {'child1': ""}
 
 
-def crossover(parent1, parent2, weights1, weights2, statements1, statements2):
-    global pos
+def crossover(parent1, parent2):
     global statement_count
     global statements
     global parents
@@ -238,17 +225,14 @@ def crossover(parent1, parent2, weights1, weights2, statements1, statements2):
     global weights
     global statement_count_parent2
 
-    pos=0
     statement_count = 1
     statements = {}
     parents = {}
     pos_in_parent = {}
     weights = {}
-    statement_count_parent2 = 1
 
-    parent1_copy = copy.deepcopy(parent1)
-    parent2_copy = copy.deepcopy(parent2)
-
+    parent22=copy.deepcopy(parent2)
+    parent11=copy.deepcopy(parent1)
 
 
     parent1_body_size = len(parent1.ext[0].body.block_items)
@@ -256,19 +240,18 @@ def crossover(parent1, parent2, weights1, weights2, statements1, statements2):
 
     cut1 = random.randint(0, parent1_body_size-1)
     cut2 = random.randint(0, parent2_body_size-1)
-    traverse_ast(parent1, parent2, cut1, weights1, weights2, statements2)
+
+    traverse_ast(parent1, parent2, cut1)
     child1 = Chromosome(statements, weights, parents, pos_in_parent, statement_count, parent1)
 
-    pos = 0
     statement_count = 1
     statements = {}
     parents = {}
     pos_in_parent = {}
     weights = {}
-    statement_count_parent2 = 1
 
-    traverse_ast(parent2_copy, parent1_copy, cut2, weights2, weights1, statements1)
-    child2 = Chromosome(statements, weights, parents, pos_in_parent, statement_count, parent2_copy)
+    traverse_ast(parent22, parent11, cut2)
+    child2 = Chromosome(statements, weights, parents, pos_in_parent, statement_count, parent22)
 
     return {'child1':child1, 'child2':child2}
 
@@ -315,20 +298,11 @@ def main():
     ast2 = parser.parse(p2)
     cut1=6
     cut2=7
-    #res1 = crossover(copy.deepcopy(ast1), copy.deepcopy(ast2), cut1)
 
-    # children = crossover(copy.deepcopy(ast1), copy.deepcopy(ast2), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], [17, 18, 19,20,21,22,23,24,25, 26, 27, 29, 29, 30,31, 32, 33, 34])
-    # child1 = children['child1']
-    # child2 = children['child2']
+    matcher = SequenceMatcher(None, p1, p2)
 
-    # child2.statements[12].expr.name='k'
-    # print(child1.weights)
-    # print(child2.weights)
-    #
-    generator = c_generator.CGenerator()
-    # for key, value in child1.statements.items():
-    #     print(str(key))
-    #     print(value.show())
+    similarity_ratio = matcher.ratio()
+    print(f"Similarity ratiooooo: {similarity_ratio}")
 
 
 main()
