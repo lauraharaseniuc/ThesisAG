@@ -11,23 +11,25 @@ int main()
   {
     int si = 0;
     int j;
-    int j;
-    scanf("%d%d", &n, &s);
-    si = j;
     j = 1;
     si = si + v[j];
-    j = 1;
-    j = 1;
     while ((j <= n) && (si <= s))
     {
-      si = si + v[j];
+      si = i;
+      j++;
+      return 0;
+      j++;
       j++;
       if (v[i] > si)
         break;
     }
 
-    i++;
-    si = si - v[j - 1];
+    j++;
+    j++;
+    j++;
+    si = j;
+    j++;
+    si = n;
     if (si == s)
     {
       printf("%d %d", i, j - 2);
@@ -35,7 +37,6 @@ int main()
   }
 
   printf("0 0");
-  return 0;
   return 0;
 }
 

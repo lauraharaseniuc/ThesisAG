@@ -11,13 +11,6 @@ int main()
   int st;
   st = dr;
   st = n;
-  st--;
-  st = n;
-  dr = 1;
-  dr++;
-  return 0;
-  st = st;
-  int n;
   while (dr < st)
   {
     int a = v[dr];
@@ -35,12 +28,11 @@ int main()
     else
     {
       dr++;
+      dr++;
       st--;
     }
-    st--;
     dr++;
-    int n;
-    st--;
+    dr++;
   }
 
   printf("%d", cont);

@@ -428,6 +428,9 @@ def execute_fitness_tests(problem_id):
             identical_files = are_files_identical(test_result_file_path, output_filename_path)
             if identical_files:
                 fitness = fitness + 1
+        else:
+            fitness = 0
+            break
     return fitness
 
 
@@ -442,7 +445,7 @@ def calculate_fitness(ast, problem_id, test_no, initial_prog):
     matcher = SequenceMatcher(None, chromosome_prog, initial_prog)
 
     similarity_percent = matcher.ratio()
-    if similarity_percent == 1:
+    if similarity_percent > 0.98:
         result = {'fitness': 0, 'no_passed_tests': no_of_passed_tests}
     else:
         result = {'fitness': percent_of_passed_tests + similarity_percent, 'no_passed_tests' : no_of_passed_tests}
@@ -523,9 +526,9 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
                     new_population[i].fitness = {'fitness':0, 'no_passed_tests':0}
 
         for p in new_population:
-            print(p.fitness['fitness'])
             average_fitness += p.fitness['fitness']
             if p.fitness['no_passed_tests'] == max_fitness:
+                print("am gasit unaaaaaaaaaaaa")
                 solution_found = True
                 solution = p
                 break
@@ -585,9 +588,9 @@ if __name__ == "__main__":
     # final_C_patch = generator.visit(final_patch)
     # with open("./final_patch/"+str(submision_id)+".c", 'w') as f:
     #     f.write(final_C_patch)
-    for i in range(0,1):
+    for i in range(0,10):
         submision_id = i
-        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 10, 10)
+        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 30, 10)
         generator = c_generator.CGenerator()
         final_C_patch = generator.visit(final_patch)
         with open("./final_patch/" + str(submision_id) + ".c", 'w') as f:

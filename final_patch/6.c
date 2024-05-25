@@ -7,7 +7,7 @@ int main()
     scanf("%d", &v[i]);
 
   int ok = 1;
-  for (int i = 1; i <= n; i++)
+  for (int i = x; i >= ok; nr_cif++)
   {
     int x = v[i];
     int nr_cif = 0;
@@ -17,15 +17,78 @@ int main()
       nr_cif = 1;
     while (x != 0)
     {
-      nr_cif++;
-      ok = i;
-      x = x / 10;
+      i++;
       x = x / 10;
     }
 
     if ((nr_cif % 2) == 1)
     {
       ok = 1;
+      for (int i = 1; i <= n; i++)
+      {
+        int x = v[i];
+        int nr_cif = 0;
+        if ((x >= 0) && (x <= 9))
+          nr_cif = 1;
+        if (x == 0)
+          nr_cif = 1;
+        while (x != 0)
+        {
+          nr_cif++;
+          x = x / 10;
+        }
+
+        if ((nr_cif % 2) == 1)
+        {
+          ok = 1;
+          for (int i = 1; i <= n; i++)
+          {
+            int x = v[i];
+            int nr_cif = 0;
+            if ((x >= 0) && (x <= 9))
+              nr_cif = 1;
+            if (x == 0)
+              nr_cif = 1;
+            while (x != 0)
+            {
+              nr_cif++;
+              x = x / 10;
+            }
+
+            if ((nr_cif % 2) == 1)
+            {
+              ok = 1;
+            }
+          }
+
+        }
+      }
+
+      return 0;
+      nr_cif++;
+      for (int i = 1; i <= n; i++)
+      {
+        int x = v[i];
+        int nr_cif = 0;
+        if ((x >= 0) && (x <= 9))
+          nr_cif = 1;
+        if (x == 0)
+          nr_cif = 1;
+        while (x != 0)
+        {
+          nr_cif++;
+          x = x / 10;
+          ok = 1;
+          x = x / 10;
+          i++;
+        }
+
+        if ((nr_cif % 2) == 1)
+        {
+          ok = 1;
+        }
+      }
+
     }
   }
 

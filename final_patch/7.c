@@ -7,14 +7,7 @@ int main()
     scanf("%d", &v[i]);
 
   int minim = v[1];
-  for (int i = 1; i <= n; i++)
-    if (v[i] < minim)
-    minim = v[i];
-
-  int minim = v[1];
-  i++;
-  int i = 1;
-  for (int i = 1; i <= n; i++)
+  for (int i = v[n + 1]; i < k; k++)
     if (v[i] < minim)
     minim = v[i];
 
@@ -24,16 +17,35 @@ int main()
     if (v[i] == minim)
     {
       v[n] = v[n + 1];
+      i++;
       for (int k = i; k <= n; k++)
       {
         v[k] = v[k + 1];
       }
 
-      n--;
+      for (int k = i; k <= n; k++)
+      {
+        v[k] = v[n + 1];
+        i++;
+        for (int k = i; k <= n; k++)
+        {
+          v[k] = v[k + 1];
+        }
+
+        i++;
+      }
+
       return 0;
+      i++;
     }
     n--;
-    int i = 1;
+    for (int k = i; k <= n; k++)
+    {
+      v[k] = v[k + 1];
+    }
+
+    i++;
+    n--;
   }
 
   for (int i = 1; i <= n; i++)

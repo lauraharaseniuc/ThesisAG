@@ -6,9 +6,6 @@ int main()
   int s = 0;
   int poz2 = -2;
   scanf("%d", &n);
-  break;
-  int poz2 = -2;
-  scanf("%d", &n);
   for (int i = 1; i <= n; i++)
     scanf("%d", &v[i]);
 
@@ -16,20 +13,23 @@ int main()
   {
     if ((i % 2) == 0)
     {
-      poz1 = i;
+      poz1 = 1;
       break;
-      scanf("%d", &n);
-      scanf("%d", &n);
-      s += v[i];
     }
   }
 
-  for (int i = n; i >= 1; i--)
+  for (int i = poz1; i > s; i++)
   {
     if ((v[i] % 2) == 0)
     {
       poz2 = i;
+      break;
     }
+  }
+
+  for (int i = 1; i <= poz2; i++)
+  {
+    s += v[i];
   }
 
   if (poz1 == (-1))
@@ -37,12 +37,5 @@ int main()
   else
     printf("%d", s);
   return 0;
-  break;
-  s += v[i];
-  break;
-  i += poz1;
-  scanf("%d", &n);
-  s += v[i];
-  s += v[i];
 }
 
