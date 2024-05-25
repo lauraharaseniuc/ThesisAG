@@ -8,6 +8,12 @@ pos_in_parent = {}
 st_to_id = {}
 
 
+def is_scanf_or_printf(node):
+    if isinstance(node, c_ast.FuncCall) and (node.name.name == 'scanf' or node.name.name == 'printf'):
+        return True
+    return False
+
+
 def printf_node(statement_count):
     parser = c_parser.CParser()
     child_ast = parser.parse('int main() {fprintf(file_pointer, "%d ", '+str(statement_count)+');}')
@@ -35,7 +41,7 @@ def traverse_statement(stmt, copy_stmt):
             child_no+=1
 
             while i<size:
-                if not (isinstance(node.block_items[child_no], c_ast.For) or isinstance(node.block_items[child_no], c_ast.While) or isinstance(node.block_items[child_no], c_ast.If)):
+                if not (isinstance(node.block_items[child_no], c_ast.For) or isinstance(node.block_items[child_no], c_ast.While) or isinstance(node.block_items[child_no], c_ast.If) or isinstance(node.block_items[child_no], c_ast.Decl) or is_scanf_or_printf(node.block_items[child_no])):
                     child_no+=1
                     node.block_items.insert(child_no, printf_node(statement_count))
 
@@ -43,7 +49,6 @@ def traverse_statement(stmt, copy_stmt):
                     statements[statement_count] = copy_node.block_items[i]
                     parent[statement_count] = copy_node.block_items
                     pos_in_parent[statement_count] = i
-                    st_to_id[copy_node.block_items[i]] = statement_count
 
                     statement_count+=1
                     child_no +=1
@@ -80,7 +85,7 @@ def build_trace_program(file, submission_id, traced_tests_path):
         i=0
         child_no = 0
         while i<size:
-            if not (isinstance(node.body.block_items[child_no], c_ast.For) or isinstance(node.body.block_items[child_no], c_ast.While) or isinstance(node.body.block_items[child_no], c_ast.If)):
+            if not (isinstance(node.body.block_items[child_no], c_ast.For) or isinstance(node.body.block_items[child_no], c_ast.While) or isinstance(node.body.block_items[child_no], c_ast.If) or isinstance(node.body.block_items[child_no], c_ast.Decl) or is_scanf_or_printf(node.body.block_items[child_no])):
                 child_no+=1
 
                 node.body.block_items.insert(child_no,printf_node(statement_count))

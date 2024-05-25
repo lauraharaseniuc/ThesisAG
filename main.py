@@ -1,14 +1,17 @@
 import copy
 import random
 import signal
+from difflib import SequenceMatcher
+
 import matplotlib.pyplot as plt
 
-from path_helper import build_trace_program
+from path_helper import build_trace_program, is_scanf_or_printf
 from pycparser import c_generator, c_ast, c_parser
 from combine_asts import crossover, Chromosome
 import subprocess
 import os
 import time
+
 
 def traverse_statement(stmt, chromosome):
     statement_count = chromosome.statement_count
@@ -25,7 +28,7 @@ def traverse_statement(stmt, chromosome):
             statement_count += 1
 
             while i<size:
-                if not (isinstance(node.block_items[i], c_ast.For) or isinstance(node.block_items[i], c_ast.While) or isinstance(node.block_items[i], c_ast.If)):
+                if not (isinstance(node.block_items[i], c_ast.For) or isinstance(node.block_items[i], c_ast.While) or isinstance(node.block_items[i], c_ast.If) or isinstance(node.block_items[i], c_ast.Decl) or is_scanf_or_printf(node.block_items[i])):
                     # add statement in dictionary based on id (statement_count)
                     statements[statement_count] = node.block_items[i]
                     parents[statement_count] = node.block_items
@@ -59,7 +62,7 @@ def traverse_ast(chromosome):
     # copiaza in child1 parent1[:cut1]
     for i in range(len(ast.ext[0].body.block_items)):
         if not (isinstance(ast.ext[0].body.block_items[i], c_ast.For) or isinstance(
-                ast.ext[0].body.block_items[i], c_ast.While) or isinstance(ast.ext[0].body.block_items[i],c_ast.If)):
+                ast.ext[0].body.block_items[i], c_ast.While) or isinstance(ast.ext[0].body.block_items[i],c_ast.If) or isinstance(ast.ext[0].body.block_items[i], c_ast.Decl) or is_scanf_or_printf(ast.ext[0].body.block_items[i])):
 
             # add statement in dictionary based on id (statement_count)
             statements[statement_count] = ast.ext[0].body.block_items[i]
@@ -428,16 +431,27 @@ def execute_fitness_tests(problem_id):
     return fitness
 
 
-def calculate_fitness(ast, problem_id):
+def calculate_fitness(ast, problem_id, test_no, initial_prog):
     save_C_code_in_file(ast)
     compile_c_program("./chromosomes/current_chromosome.c", "./chromosomes/compiled")
-    fitness = execute_fitness_tests(problem_id)
-    return fitness
+    no_of_passed_tests = execute_fitness_tests(problem_id)
+    percent_of_passed_tests = no_of_passed_tests / test_no
+
+    generator = c_generator.CGenerator()
+    chromosome_prog = generator.visit(ast)
+    matcher = SequenceMatcher(None, chromosome_prog, initial_prog)
+
+    similarity_percent = matcher.ratio()
+    if similarity_percent == 1:
+        result = {'fitness': 0, 'no_passed_tests': no_of_passed_tests}
+    else:
+        result = {'fitness': percent_of_passed_tests + similarity_percent, 'no_passed_tests' : no_of_passed_tests}
+    return result
 
 
 def sample(population, population_size):
     def custom_sort(chromosome):
-        return chromosome.fitness  # Sort by the second element of each tuple
+        return chromosome.fitness['fitness']  # Sort by the second element of each tuple
 
     # Sort the data using the custom comparison function
     sorted_data = sorted(population, key=custom_sort, reverse=True)
@@ -454,15 +468,17 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
     parent = extracted['parent']
     pos_in_parent = extracted['pos_in_parent']
 
+    initial_prog = c_generator.CGenerator().visit(initial_ast)
+
     chromosome = Chromosome(statements, weights, parent, pos_in_parent, statement_count, initial_ast)
 
     population = initialise_population(chromosome, population_size)
 
     for i in range(len(population)):
         try:
-            population[i].fitness = calculate_fitness(population[i].ast, problem_id)
+            population[i].fitness = calculate_fitness(population[i].ast, problem_id, 5, initial_prog)
         except subprocess.CalledProcessError as e:
-            population[i].fitness = 0
+            population[i].fitness = {'fitness':0, 'no_passed_tests':0}
 
     solution_found = False
     solution = None
@@ -472,7 +488,7 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
     max_fitness = 5
     current_epoch = 1
 
-    epochs = [i for i in range(1, no_epochs+1)]
+    epochs = []
     average_time_per_epoch = []
     average_fitness_per_epoch = []
 
@@ -502,18 +518,19 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
         for i in range(len(new_population)):
             if new_population[i].fitness is None:
                 try:
-                    new_population[i].fitness = calculate_fitness(new_population[i].ast, problem_id)
+                    new_population[i].fitness = calculate_fitness(new_population[i].ast, problem_id, 5, initial_prog)
                 except subprocess.CalledProcessError as e:
-                    new_population[i].fitness = 0
+                    new_population[i].fitness = {'fitness':0, 'no_passed_tests':0}
 
         for p in new_population:
-            average_fitness += p.fitness
-            if p.fitness == max_fitness:
+            print(p.fitness['fitness'])
+            average_fitness += p.fitness['fitness']
+            if p.fitness['no_passed_tests'] == max_fitness:
                 solution_found = True
                 solution = p
                 break
-            elif p.fitness >= best_fitness:
-                best_fitness = p.fitness
+            elif p.fitness['fitness'] >= best_fitness:
+                best_fitness = p.fitness['fitness']
                 best_solution = copy.deepcopy(p.ast)
             population.append(mutate(p))
 
@@ -522,6 +539,7 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
         elapsed_time = end_time - start_time
         average_time_per_epoch.append(elapsed_time)
         average_fitness_per_epoch.append(average_fitness / (len(new_population)))
+        epochs.append(current_epoch)
 
         print(current_epoch)
         current_epoch += 1
@@ -567,9 +585,9 @@ if __name__ == "__main__":
     # final_C_patch = generator.visit(final_patch)
     # with open("./final_patch/"+str(submision_id)+".c", 'w') as f:
     #     f.write(final_C_patch)
-    for i in range(6,10):
+    for i in range(0,1):
         submision_id = i
-        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 50, 50)
+        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 10, 10)
         generator = c_generator.CGenerator()
         final_C_patch = generator.visit(final_patch)
         with open("./final_patch/" + str(submision_id) + ".c", 'w') as f:

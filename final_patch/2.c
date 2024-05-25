@@ -5,168 +5,60 @@ int main()
   int m;
   int a[10001] = {0};
   int b[10001] = {0};
-  printf("%d", cont);
-  int n;
-  scanf("%d", &m);
-  int b[10001] = {0};
-  break;
-  return 0;
-  int b[10001] = {0};
-  int b[10001] = {0};
-  int cont = 0;
-  int a[10001] = {0};
-  int b[10001] = {0};
-  int a[10001] = {0};
-  int n;
-  int b[10001] = {0};
-  int b[10001] = {0};
-  int a[10001] = {0};
-  scanf("%d", &m);
-  printf("%d", cont);
-  scanf("%d%d", &n, &p);
-  scanf("%d", &m);
-  scanf("%d%d", &n, &p);
-  j++;
-  printf("%d", cont);
-  int a[10001] = {0};
-  scanf("%d", &m);
   scanf("%d%d", &n, &p);
   int cont = 0;
-  int n;
-  int b[10001] = {0};
-  int n;
+  scanf("%d%d", &n, &p);
+  int cont = 0;
+  int cont = 0;
   int n;
   j++;
   int x;
-  int n;
-  printf("%d", cont);
-  int n;
-  int n;
-  scanf("%d%d", &n, &p);
-  return 0;
   int b[10001] = {0};
-  int b[10001] = {0};
-  int n;
-  printf("%d", cont);
-  int b[10001] = {0};
-  break;
-  j++;
-  break;
-  int cont = 0;
-  scanf("%d", &m);
-  int b[10001] = {0};
-  scanf("%d", &m);
-  printf("%d", cont);
-  printf("%d", cont);
-  int cont = 0;
-  int n;
-  scanf("%d%d", &n, &p);
-  break;
-  int x;
-  printf("%d", cont);
-  int cont = 0;
-  break;
-  printf("%d", cont);
-  int a[10001] = {0};
-  int a[10001] = {0};
-  int n;
-  return 0;
-  int n;
-  break;
-  printf("%d", cont);
-  scanf("%d", &m);
-  break;
-  int cont = 0;
-  return 0;
-  int x;
-  int n;
-  int x;
-  scanf("%d%d", &n, &p);
-  j++;
-  break;
-  printf("%d", cont);
-  scanf("%d%d", &n, &p);
-  int x;
-  int n;
-  int cont = 0;
-  int a[10001] = {0};
-  scanf("%d%d", &n, &p);
-  break;
-  printf("%d", cont);
-  scanf("%d", &m);
-  int cont = 0;
-  return 0;
-  j++;
-  int b[10001] = {0};
-  break;
-  break;
-  scanf("%d", &m);
-  printf("%d", cont);
-  int cont = 0;
-  printf("%d", cont);
-  int n;
-  int cont = 0;
-  return 0;
-  return 0;
-  int b[10001] = {0};
-  scanf("%d", &m);
-  scanf("%d", &m);
-  printf("%d", cont);
-  scanf("%d", &m);
-  int x;
-  scanf("%d%d", &n, &p);
-  return 0;
-  int b[10001] = {0};
-  scanf("%d", &m);
-  int x;
-  break;
-  break;
-  scanf("%d", &m);
-  scanf("%d%d", &n, &p);
-  break;
-  printf("%d", cont);
-  return 0;
-  int a[10001] = {0};
-  return 0;
-  scanf("%d", &m);
-  printf("%d", cont);
-  break;
-  return 0;
-  int b[10001] = {0};
-  int x;
-  scanf("%d", &m);
-  int b[10001] = {0};
-  return 0;
-  int n;
-  return 0;
-  int x;
-  j++;
-  scanf("%d%d", &n, &p);
-  printf("%d", cont);
   int cont = 0;
   scanf("%d%d", &n, &p);
-  int n;
-  scanf("%d%d", &n, &p);
+  for (int i = i; i > (a[x] + 1); j++)
+  {
+    scanf("%d", &x);
+    j++;
+    a[x] = a[x] + 1;
+    int j = 0
+  }
+
   scanf("%d", &m);
-  int n;
-  int n;
   int b[10001] = {0};
-  int b[10001] = {0};
-  int n;
-  scanf("%d", &m);
-  int x;
-  int a[10001] = {0};
-  int n;
-  int x;
-  int x;
-  break;
-  scanf("%d", &m);
-  int cont = 0;
-  scanf("%d", &m);
-  int a[10001] = {0};
-  int x;
-  int a[10001] = {0};
-  int b[10001] = {0};
-  int a[10001] = {0};
+  for (int i = 1; i <= m; i++)
+  {
+    scanf("%d", &x);
+    for (int i = 1; i <= m; i++)
+    {
+      scanf("%d", &x);
+      b[x] = b[x] + 1;
+    }
+
+    b[x] = b[x] + 1;
+  }
+
+  for (int i = 0; i <= 10000; i++)
+  {
+    for (int j = 0; j <= 10000; j++)
+    {
+      if ((i * j) >= p)
+      {
+        cont += a[i] * b[j];
+        break;
+      }
+      j++;
+      int x;
+      for (int i = 1; i <= m; i++)
+      {
+        scanf("%d", &x);
+        b[x] = b[x] + 1;
+      }
+
+    }
+
+  }
+
+  printf("%d", cont);
 }
 
