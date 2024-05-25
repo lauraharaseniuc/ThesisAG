@@ -18,14 +18,14 @@ int main()
     while (x != 0)
     {
       nr_cif++;
-      ok = i;
       x = x / 10;
+      x = 1;
       x = x / 10;
     }
 
     if ((nr_cif % 2) == 1)
     {
-      ok = 1;
+      x = n;
     }
   }
 

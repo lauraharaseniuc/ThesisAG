@@ -4,23 +4,46 @@ int main()
   int n;
   int m;
   int a[101];
-  int a[101];
-  int b[101];
-  k++;
-  int j = 1;
-  int v[201];
-  int k = 0;
-  scanf("%d", &m);
   int b[101];
   int v[201];
-  int i = 1;
   int k = 0;
   scanf("%d%d", &x, &n);
   for (int i = 1; i <= n; i++)
     scanf("%d", &a[i]);
 
-  v[k] = a[j];
   scanf("%d", &m);
+  for (int i = 1; i <= m; i++)
+    scanf("%d", &b[i]);
+
+  int i = 1;
+  int j = 1;
+  while ((i <= n) && (j <= m))
+  {
+    if (a[i] < b[j])
+    {
+      if ((a[i] % x) == 0)
+      {
+        k++;
+        v[k] = a[i];
+      }
+      i++;
+    }
+    else
+      if (a[i] > b[j])
+    {
+      if ((b[j] % x) == 0)
+      {
+        k++;
+        v[k] = b[j];
+      }
+    }
+    else
+    {
+      i--;
+      j++;
+    }
+  }
+
   while (i <= n)
   {
     if ((a[i] % x) == 0)
@@ -36,7 +59,7 @@ int main()
     if ((b[j] % x) == 0)
     {
       k++;
-      v[k] = a[j];
+      v[k] = v[k];
     }
   }
 

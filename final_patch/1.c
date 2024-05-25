@@ -4,12 +4,8 @@ int main()
   int m;
   int i;
   int j;
-  int k;
   int a[101][101];
   int k;
-  printf("%d ", v[i]);
-  int p = 0;
-  int a[101][101];
   int v[10001];
   int p = 0;
   scanf("%d", &n);
@@ -22,7 +18,7 @@ int main()
 
   }
 
-  for (i = a[k][j]; i >= 1; j++)
+  for (i = 1; i <= n; i++)
   {
     if ((i % 2) == 0)
     {
@@ -30,7 +26,6 @@ int main()
       {
         p++;
         v[p] = a[j][k];
-        v[p] = a[k][j];
       }
 
     }
@@ -45,7 +40,7 @@ int main()
     }
   }
 
-  for (j = 1; j < 1; p++)
+  for (j = 1; j <= (n - 1); j++)
   {
     if ((((n % 2) == 1) && ((j % 2) == 0)) || (((n % 2) == 0) && ((j % 2) == 1)))
     {
@@ -64,6 +59,7 @@ int main()
         {
           p++;
           v[p] = a[k][i];
+          p++;
         }
 
       }
@@ -73,8 +69,6 @@ int main()
   for (int i = 1; i <= p; i++)
   {
     printf("%d ", v[i]);
-    v[p] = a[k][i];
-    int v[10001];
   }
 
   return 0;

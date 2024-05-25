@@ -5,36 +5,19 @@ int main()
   int m;
   int a[10001] = {0};
   int b[10001] = {0};
-  scanf("%d%d", &n, &p);
   int cont = 0;
-  scanf("%d%d", &n, &p);
-  int cont = 0;
-  int cont = 0;
-  int n;
-  j++;
   int x;
-  int b[10001] = {0};
-  int cont = 0;
   scanf("%d%d", &n, &p);
-  for (int i = i; i > (a[x] + 1); j++)
+  for (int i = 1; i <= n; i++)
   {
     scanf("%d", &x);
-    j++;
     a[x] = a[x] + 1;
-    int j = 0
   }
 
   scanf("%d", &m);
-  int b[10001] = {0};
   for (int i = 1; i <= m; i++)
   {
     scanf("%d", &x);
-    for (int i = 1; i <= m; i++)
-    {
-      scanf("%d", &x);
-      b[x] = b[x] + 1;
-    }
-
     b[x] = b[x] + 1;
   }
 
@@ -46,19 +29,18 @@ int main()
       {
         cont += a[i] * b[j];
         break;
+        break;
+        break;
+        break;
+        j++;
       }
       j++;
-      int x;
-      for (int i = 1; i <= m; i++)
-      {
-        scanf("%d", &x);
-        b[x] = b[x] + 1;
-      }
-
+      j++;
     }
 
   }
 
   printf("%d", cont);
+  return 0;
 }
 

@@ -370,7 +370,7 @@ def mutate(chromosome):
                 prob = weights[statement_id]
             except KeyError:
                 print(weights)
-            if random.randint(0, 1) <= prob and random.randint(0, 1) <= w_mut:
+            if random.randint(0, 1) <= weights[statement_id] and random.randint(0, 1) <= w_mut:
                 operation = random.choice([0, 1, 2])
                 if operation == 0:
                     # insert
@@ -428,6 +428,9 @@ def execute_fitness_tests(problem_id):
             identical_files = are_files_identical(test_result_file_path, output_filename_path)
             if identical_files:
                 fitness = fitness + 1
+        else:
+            fitness = 0
+            break
     return fitness
 
 
@@ -456,7 +459,28 @@ def sample(population, population_size):
     # Sort the data using the custom comparison function
     sorted_data = sorted(population, key=custom_sort, reverse=True)
 
-    return sorted_data[:population_size]
+    return sorted_data[:int(population_size)]
+
+
+import random
+
+
+def roulette_wheel_selection(population):
+    total_fitness = sum([p.fitness['fitness'] for p in population])
+
+    probabilities = [p.fitness['fitness'] / total_fitness for p in population]
+
+    cumulative_probabilities = []
+    cumulative_sum = 0
+    for p in probabilities:
+        cumulative_sum += p
+        cumulative_probabilities.append(cumulative_sum)
+
+    r = random.random()
+    for i, cumulative_probability in enumerate(cumulative_probabilities):
+        if r < cumulative_probability:
+            return population[i]
+
 
 
 def ag(submission_id, problem_id, program_path, population_size, no_epochs):
@@ -496,43 +520,39 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
         start_time = time.time()
         average_fitness = 0
 
-        viable = [p for p in population]
-        population = []
-        new_population = []
-        # parintii se aleg din prima jumatate a populatie (cei cu fitness mai bun)
-        parents = sample(viable, population_size // 2)
-        for i in range(0, len(parents)-1, 2):
-            parent1 = parents[i]
-            parent2 = parents[i+1]
+        viable = [p for p in population if p.fitness['fitness'] > 0]
+        offsprings = []
+        for i in range(0, population_size//2):
+            parent1 = roulette_wheel_selection(viable)
+            parent2 = roulette_wheel_selection(viable)
 
             children = crossover(copy.deepcopy(parent1.ast), copy.deepcopy(parent2.ast))
             child1 = children['child1']
             child2 = children['child2']
 
-            new_population.append(parent1)
-            new_population.append(parent2)
-            new_population.append(child1)
-            new_population.append(child2)
+            offsprings.append(mutate(child1))
+            offsprings.append(mutate(child2))
 
+        for i in range(len(offsprings)):
+            try:
+                offsprings[i].fitness = calculate_fitness(offsprings[i].ast, problem_id, 5, initial_prog)
+            except subprocess.CalledProcessError as e:
+                offsprings[i].fitness = {'fitness':0, 'no_passed_tests':0}
 
-        for i in range(len(new_population)):
-            if new_population[i].fitness is None:
-                try:
-                    new_population[i].fitness = calculate_fitness(new_population[i].ast, problem_id, 5, initial_prog)
-                except subprocess.CalledProcessError as e:
-                    new_population[i].fitness = {'fitness':0, 'no_passed_tests':0}
+        new_population = sample(population, population_size*0.1)
+        new_population.extend(new_population[:int(0.9*population_size)])
 
         for p in new_population:
-            print(p.fitness['fitness'])
-            average_fitness += p.fitness['fitness']
             if p.fitness['no_passed_tests'] == max_fitness:
+                print("am gasit unaaaaaaaaaaaa")
                 solution_found = True
                 solution = p
                 break
             elif p.fitness['fitness'] >= best_fitness:
                 best_fitness = p.fitness['fitness']
                 best_solution = copy.deepcopy(p.ast)
-            population.append(mutate(p))
+
+        population = new_population
 
         end_time = time.time()
 
@@ -541,7 +561,6 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
         average_fitness_per_epoch.append(average_fitness / (len(new_population)))
         epochs.append(current_epoch)
 
-        print(current_epoch)
         current_epoch += 1
 
     save_dir = 'plots'
@@ -585,9 +604,9 @@ if __name__ == "__main__":
     # final_C_patch = generator.visit(final_patch)
     # with open("./final_patch/"+str(submision_id)+".c", 'w') as f:
     #     f.write(final_C_patch)
-    for i in range(0,1):
+    for i in range(0,10):
         submision_id = i
-        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 10, 10)
+        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 30, 10)
         generator = c_generator.CGenerator()
         final_C_patch = generator.visit(final_patch)
         with open("./final_patch/" + str(submision_id) + ".c", 'w') as f:

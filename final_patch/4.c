@@ -9,15 +9,9 @@ int main()
 
   int dr;
   int st;
-  st = dr;
-  st = n;
-  st--;
-  st = n;
   dr = 1;
   dr++;
-  return 0;
-  st = st;
-  int n;
+  dr = n;
   while (dr < st)
   {
     int a = v[dr];
@@ -35,11 +29,10 @@ int main()
     else
     {
       dr++;
-      st--;
+      dr++;
+      dr++;
     }
-    st--;
     dr++;
-    int n;
     st--;
   }
 

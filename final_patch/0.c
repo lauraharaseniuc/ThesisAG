@@ -4,7 +4,7 @@ int main()
   int v[1001];
   int k;
   scanf("%d%d", &n, &k);
-  for (int i = i; i > 1; i--)
+  for (int i = 1; i <= n; i++)
   {
     scanf("%d", &v[i]);
   }
@@ -15,12 +15,12 @@ int main()
   }
 
   n--;
-  i--;
   for (int i = 1; i <= n; i++)
   {
     printf("%d ", v[i]);
   }
 
   return 0;
+  n--;
 }
 

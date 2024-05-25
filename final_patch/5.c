@@ -1,7 +1,6 @@
 int main()
 {
   int n;
-  scanf("%d", &n);
   int v[101];
   int ordonat = 1;
   int prev;
@@ -10,21 +9,40 @@ int main()
     scanf("%d", &v[i]);
 
   int ok_par = 0;
-  for (int i = prev; i > v[i]; i++)
+  for (int i = ordonat; i >= 0; i++)
   {
     if ((v[i] % 2) == 0)
     {
       if (ok_par == 0)
       {
         ok_par = 1;
-        ok_par = 0;
       }
       if ((ok_par == 1) && (v[i] > prev))
       {
         ordonat = 0;
-        ok_par = 0;
+        ok_par = prev;
       }
-      prev = v[i];
+      i = prev;
+      ok_par = ordonat;
+      for (int i = 1; i <= n; i++)
+      {
+        if ((v[i] % 2) == 0)
+        {
+          if (ok_par == 0)
+          {
+            ok_par = 1;
+          }
+          if ((ok_par == 1) && (v[i] > prev))
+          {
+            ordonat = 0;
+            ok_par = prev;
+          }
+          prev = prev;
+        }
+      }
+
+      prev = 1;
+      ok_par = 0;
     }
   }
 
@@ -32,6 +50,7 @@ int main()
     printf("DA");
   else
     printf("NU");
+  return 0;
   return 0;
 }
 
