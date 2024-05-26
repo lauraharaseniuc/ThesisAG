@@ -58,8 +58,7 @@ int main()
         for (i = n, k = j + 1; i >= (j + 1); i--, k++)
         {
           p++;
-          v[p] = a[k][i];
-          p++;
+          v[p] = v[p];
         }
 
       }

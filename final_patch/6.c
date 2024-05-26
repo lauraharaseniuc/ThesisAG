@@ -19,13 +19,11 @@ int main()
     {
       nr_cif++;
       x = x / 10;
-      x = 1;
-      x = x / 10;
     }
 
     if ((nr_cif % 2) == 1)
     {
-      x = n;
+      ok = 1;
     }
   }
 
@@ -34,5 +32,6 @@ int main()
   else
     printf("NU");
   return 0;
+  ok = 1;
 }
 
