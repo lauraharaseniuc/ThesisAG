@@ -1,3 +1,4 @@
+0.9788135593220338
 int main()
 {
   int n;
@@ -9,7 +10,7 @@ int main()
 
   int dr;
   int st;
-  st = dr;
+  dr = n;
   st = n;
   while (dr < st)
   {
@@ -29,8 +30,17 @@ int main()
     {
       dr++;
       dr++;
+      dr++;
+      dr++;
+      st = n;
       st--;
     }
+    dr++;
+    dr++;
+    st--;
+    st--;
+    return 0;
+    st--;
     dr++;
     dr++;
   }

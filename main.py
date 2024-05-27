@@ -576,9 +576,9 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
 
     # Show the plots (optional)
     if solution:
-        return minimize(solution.ast)
+        return {'sol': minimize(solution.ast), 'fitness': max_fitness}
     else:
-        return best_solution
+        return {'sol': best_solution, 'fitness': best_fitness}
 
 
 if __name__ == "__main__":
@@ -590,10 +590,13 @@ if __name__ == "__main__":
     #     f.write(final_C_patch)
     for i in range(0,10):
         submision_id = i
-        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 30, 10)
+        res= ag(submision_id, i+1, "problems/"+str(i)+".c", 30, 20)
+        final_patch = res['sol']
+        fitness = res['fitness']
         generator = c_generator.CGenerator()
         final_C_patch = generator.visit(final_patch)
         with open("./final_patch/" + str(submision_id) + ".c", 'w') as f:
+            f.write(str(fitness)+"\n")
             f.write(final_C_patch)
         print("doneeeeeeeeeeeeeeeee")
     # ag(0, 1, "problems/0.c", 10)
