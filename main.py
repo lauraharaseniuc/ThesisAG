@@ -590,7 +590,7 @@ if __name__ == "__main__":
     #     f.write(final_C_patch)
     for i in range(0,10):
         submision_id = i
-        res= ag(submision_id, i+1, "problems/"+str(i)+".c", 30, 20)
+        res= ag(submision_id, i+1, "problems/"+str(i)+".c", 35, 30)
         final_patch = res['sol']
         fitness = res['fitness']
         generator = c_generator.CGenerator()

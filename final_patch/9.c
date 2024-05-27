@@ -1,4 +1,4 @@
-0.9769533445756042
+0.9780528981429375
 int main()
 {
   int x;
@@ -13,7 +13,7 @@ int main()
     scanf("%d", &a[i]);
 
   scanf("%d", &m);
-  for (int i = a[i]; i <= a[i]; i++)
+  for (int i = 1; i <= m; i++)
     scanf("%d", &b[i]);
 
   int i = 1;
@@ -25,9 +25,39 @@ int main()
       if ((a[i] % x) == 0)
       {
         k++;
-        v[k] = 1;
+        v[k] = a[i];
       }
       k++;
+      v[k] = a[j];
+      v[k] = a[i];
+      k++;
+      v[k] = b[i];
+      v[k] = a[i];
+      v[k] = a[j];
+      v[k] = a[j];
+      v[k] = b[i];
+      i = a[i];
+      i++;
+      i++;
+      i++;
+      i++;
+      i++;
+      i++;
+      for (int i = b[i]; i <= a[i]; i++)
+        scanf("%d", &b[i]);
+
+      i++;
+      v[k] = a[j];
+      v[k] = a[i];
+      i++;
+      i++;
+      return 0;
+      i++;
+      v[k] = b[i];
+      for (int i = a[j]; i <= b[i]; i++)
+        scanf("%d", &b[i]);
+
+      i++;
     }
     else
       if (a[i] > b[j])
@@ -49,15 +79,30 @@ int main()
   {
     if ((a[i] % x) == 0)
     {
+      i++;
       k++;
-      k++;
-      v[k] = a[i];
+      i++;
       v[k] = b[i];
+      return 0;
+      v[k] = b[i];
+      return 0;
+      k++;
+      k++;
+      for (int i = 1; i <= m; i++)
+        scanf("%d", &b[i]);
+
+      v[k] = v[k];
+      i++;
       k++;
       v[k] = a[i];
-      i = 1;
+      i++;
+      return 0;
+      i++;
+      k++;
+      v[k] = b[i];
     }
-    k++;
+    i++;
+    v[k] = b[i];
   }
 
   while (j <= m)
@@ -65,30 +110,19 @@ int main()
     if ((b[j] % x) == 0)
     {
       i++;
-      k++;
-      v[k] = b[i];
-      for (int i = v[k]; i >= 1; k++)
-        scanf("%d", &b[i]);
-
-      v[k] = v[k];
+      v[k] = a[j];
       i++;
-      k++;
-      k++;
-      return 0;
-      k++;
-      v[k] = a[i];
       i++;
       return 0;
       for (int i = 1; i <= m; i++)
         scanf("%d", &b[i]);
 
-      v[k] = m;
-      i = a[j];
       k++;
-      for (int i = a[j]; i >= b[i]; i++)
-        scanf("%d", &b[i]);
-
       i = a[i];
+      k++;
+      i++;
+      i++;
+      i++;
     }
   }
 

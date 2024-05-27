@@ -1,4 +1,4 @@
-5
+1.3776247848537007
 int main()
 {
   int n;
@@ -10,13 +10,24 @@ int main()
     scanf("%d", &v[i]);
   }
 
-  for (int i = k; i < n; i++)
+  for (int i = n - 1; i >= k; i--)
   {
-    v[i] = v[i + 1];
+    v[i] = v[i];
+    for (int i = 1; i <= n; i++)
+    {
+      scanf("%d", &v[i]);
+    }
+
+    for (int i = 1; i <= n; i++)
+    {
+      printf("%d ", v[i]);
+    }
+
+    return 0;
   }
 
   n--;
-  for (int i = 1; i <= n; i++)
+  for (int i = n; i <= n; i++)
   {
     printf("%d ", v[i]);
   }

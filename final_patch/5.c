@@ -1,4 +1,4 @@
-1.552286282306163
+1.5466537342386033
 int main()
 {
   int n;
@@ -10,65 +10,84 @@ int main()
     scanf("%d", &v[i]);
 
   int ok_par = 0;
-  for (int i = 0; i >= i; i++)
+  for (int i = 0; i > v[i]; i++)
   {
     if ((v[i] % 2) == 0)
     {
       if (ok_par == 0)
       {
-        ordonat = 1;
+        ok_par = 1;
+        prev = 1;
+        ordonat = 0;
+        ok_par = 0;
+        ordonat = 0;
+        ordonat = 0;
       }
       if ((ok_par == 1) && (v[i] > prev))
       {
-        ok_par = ordonat;
-        ordonat = 1;
-        return 0;
-        return 0;
-        for (int i = i; i <= 0; i++)
-        {
-          if ((v[i] % 2) == 0)
-          {
-            if (ok_par == 0)
-            {
-              ok_par = 1;
-            }
-            if ((ok_par == 1) && (v[i] > prev))
-            {
-              ordonat = 0;
-              ok_par = 0;
-            }
-            ok_par = ok_par;
-            ok_par = 1;
-          }
-        }
-
-        return 0;
-        for (int i = i; i <= 0; i++)
-        {
-          if ((v[i] % 2) == 0)
-          {
-            if (ok_par == 0)
-            {
-              ok_par = 1;
-            }
-            if ((ok_par == 1) && (v[i] > prev))
-            {
-              ordonat = 0;
-              ok_par = 0;
-            }
-            ok_par = ok_par;
-            ok_par = 1;
-          }
-        }
-
-        ok_par = i;
-        ok_par = i;
+        ordonat = 0;
+        prev = v[i];
         ok_par = 0;
-        ok_par = ok_par;
+        ok_par = 0;
+        prev = 1;
+        for (int i = v[i]; i <= 1; i++)
+        {
+          if ((v[i] % 2) == 0)
+          {
+            if (ok_par == 0)
+            {
+              ok_par = 1;
+            }
+            if ((ok_par == 1) && (v[i] > prev))
+            {
+              ordonat = 0;
+              ordonat = 0;
+              ok_par = 0;
+              prev = v[i];
+            }
+            prev = v[i];
+          }
+        }
+
+        for (int i = 0; i < ordonat; i++)
+        {
+          if ((v[i] % 2) == 0)
+          {
+            if (ok_par == 0)
+            {
+              ok_par = 1;
+            }
+            if ((ok_par == 1) && (v[i] > prev))
+            {
+              ordonat = 0;
+              ordonat = 0;
+              ok_par = 0;
+              prev = v[i];
+            }
+            prev = v[i];
+          }
+        }
+
+        return 0;
+        return 0;
+        ordonat = 0;
+        prev = v[i];
+        return 0;
+        i = ok_par;
+        ordonat = 0;
+        prev = v[i];
+        prev = v[i];
+        ordonat = 0;
+        i = 1;
+        ordonat = 0;
+        return 0;
+        ordonat = 0;
+        prev = v[i];
+        prev = 0;
+        ordonat = 0;
+        prev = v[i];
       }
-      ok_par = ok_par;
-      ok_par = 1;
-      i = ordonat;
+      prev = prev;
     }
   }
 
