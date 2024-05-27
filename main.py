@@ -540,7 +540,7 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
                 offsprings[i].fitness = {'fitness':0, 'no_passed_tests':0}
 
         new_population = sample(population, population_size*0.1)
-        new_population.extend(new_population[:int(0.9*population_size)])
+        new_population.extend(offsprings[:int(0.9*population_size)])
 
         for p in new_population:
             if p.fitness['no_passed_tests'] == max_fitness:
@@ -590,29 +590,21 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
     # Save the second plot
     plt.savefig(os.path.join(save_dir, 'average_fitness_per_epoch_task'+str(problem_id)+'.png'))
 
-    # Show the plots (optional)
     if solution:
-        return minimize(solution.ast)
+        return {'sol': minimize(solution.ast), 'fitness': max_fitness}
     else:
-        return best_solution
+        return {'sol': best_solution, 'fitness': best_fitness}
 
 
 if __name__ == "__main__":
-    # submision_id = 1
-    # final_patch = ag(submision_id, 2, "problems/1.c", 10)
-    # generator = c_generator.CGenerator()
-    # final_C_patch = generator.visit(final_patch)
-    # with open("./final_patch/"+str(submision_id)+".c", 'w') as f:
-    #     f.write(final_C_patch)
-    for i in range(0,10):
+    for i in range(2, 3):
         submision_id = i
-        final_patch = ag(submision_id, i+1, "problems/"+str(i)+".c", 30, 10)
+        res = ag(submision_id, i + 1, "problems/" + str(i) + ".c", 30, 10)
+        final_patch = res['sol']
+        fitness = res['fitness']
         generator = c_generator.CGenerator()
         final_C_patch = generator.visit(final_patch)
         with open("./final_patch/" + str(submision_id) + ".c", 'w') as f:
+            f.write(str(fitness) + "\n")
             f.write(final_C_patch)
         print("doneeeeeeeeeeeeeeeee")
-    # ag(0, 1, "problems/0.c", 10)
-
-# print("After:")
-# ast.show(offset=2)

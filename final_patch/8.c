@@ -14,28 +14,13 @@ int main()
     j = 1;
     while ((j <= n) && (si <= s))
     {
-      si = si - v[j - 1];
+      si = si + v[j];
       j++;
       if (v[i] > si)
         break;
     }
 
     j++;
-    si = si - v[j - 1];
-    si = si + v[j];
-    si = si - v[j - 1];
-    si = si - v[j - 1];
-    return 0;
-    return 0;
-    j++;
-    si = si - v[j - 1];
-    j++;
-    si = si - v[j - 1];
-    return 0;
-    si = si + v[j];
-    si = si;
-    si = si + v[j];
-    si = si + v[j];
     si = si - v[j - 1];
     if (si == s)
     {
@@ -45,6 +30,6 @@ int main()
 
   printf("0 0");
   return 0;
-  j++;
+  return 0;
 }
 

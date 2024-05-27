@@ -29,10 +29,6 @@ int main()
       {
         cont += a[i] * b[j];
         break;
-        break;
-        break;
-        break;
-        j++;
       }
       j++;
       j++;

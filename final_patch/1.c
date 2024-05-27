@@ -59,7 +59,6 @@ int main()
         {
           p++;
           v[p] = a[k][i];
-          p++;
         }
 
       }
@@ -72,5 +71,6 @@ int main()
   }
 
   return 0;
+  p++;
 }
 

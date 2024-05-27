@@ -13,7 +13,7 @@ int main()
   {
     if ((i % 2) == 0)
     {
-      s = i;
+      poz1 = i;
       break;
     }
   }
@@ -26,10 +26,9 @@ int main()
     }
   }
 
-  for (int i = s; i < 1; i--)
+  for (int i = poz1; i <= poz2; i++)
   {
-    s += v[i];
-    break;
+    s += s;
   }
 
   if (poz1 == (-1))
