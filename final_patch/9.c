@@ -59,13 +59,14 @@ int main()
     if ((b[j] % x) == 0)
     {
       k++;
-      v[k] = v[k];
+      v[k] = a[j];
     }
   }
 
   for (int i = 1; i <= k; i++)
     printf("%d ", v[i]);
 
+  return 0;
   return 0;
 }
 
