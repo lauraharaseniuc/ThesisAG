@@ -445,10 +445,8 @@ def calculate_fitness(ast, problem_id, test_no, initial_prog):
     matcher = SequenceMatcher(None, chromosome_prog, initial_prog)
 
     similarity_percent = matcher.ratio()
-    if similarity_percent > 0.98:
-        result = {'fitness': 0, 'no_passed_tests': no_of_passed_tests}
-    else:
-        result = {'fitness': percent_of_passed_tests + similarity_percent, 'no_passed_tests' : no_of_passed_tests}
+    print(similarity_percent)
+    result = {'fitness': percent_of_passed_tests + similarity_percent, 'no_passed_tests' : no_of_passed_tests}
     return result
 
 
@@ -472,6 +470,7 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
     pos_in_parent = extracted['pos_in_parent']
 
     initial_prog = c_generator.CGenerator().visit(initial_ast)
+    print(initial_prog)
 
     chromosome = Chromosome(statements, weights, parent, pos_in_parent, statement_count, initial_ast)
 
@@ -519,11 +518,10 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
 
 
         for i in range(len(new_population)):
-            if new_population[i].fitness is None:
-                try:
-                    new_population[i].fitness = calculate_fitness(new_population[i].ast, problem_id, 5, initial_prog)
-                except subprocess.CalledProcessError as e:
-                    new_population[i].fitness = {'fitness':0, 'no_passed_tests':0}
+            try:
+                new_population[i].fitness = calculate_fitness(new_population[i].ast, problem_id, 5, initial_prog)
+            except subprocess.CalledProcessError as e:
+                new_population[i].fitness = {'fitness':0, 'no_passed_tests':0}
 
         for p in new_population:
             average_fitness += p.fitness['fitness']
@@ -532,9 +530,10 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
                 solution_found = True
                 solution = p
                 break
-            elif p.fitness['fitness'] >= best_fitness:
+            elif p.fitness['fitness'] >= best_fitness and p.fitness['fitness'] < 1:
                 best_fitness = p.fitness['fitness']
                 best_solution = copy.deepcopy(p.ast)
+                #print(c_generator.CGenerator().visit(best_solution))
             population.append(mutate(p))
 
         end_time = time.time()
@@ -588,9 +587,9 @@ if __name__ == "__main__":
     # final_C_patch = generator.visit(final_patch)
     # with open("./final_patch/"+str(submision_id)+".c", 'w') as f:
     #     f.write(final_C_patch)
-    for i in range(0,10):
+    for i in range(1,2):
         submision_id = i
-        res= ag(submision_id, i+1, "problems/"+str(i)+".c", 35, 30)
+        res= ag(submision_id, i+1, "problems/"+str(i)+".c", 120, 15)
         final_patch = res['sol']
         fitness = res['fitness']
         generator = c_generator.CGenerator()
