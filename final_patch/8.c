@@ -1,3 +1,4 @@
+1.3906458797327395
 int main()
 {
   int n;
@@ -14,14 +15,14 @@ int main()
     j = 1;
     while ((j <= n) && (si <= s))
     {
-      si = si + v[j];
+      si = si - v[j - 1];
       j++;
       if (v[i] > si)
         break;
     }
 
     j++;
-    si = si + v[j];
+    si = si - v[j - 1];
     if (si == s)
     {
       printf("%d %d", i, j - 2);

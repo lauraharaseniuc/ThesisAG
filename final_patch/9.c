@@ -1,3 +1,4 @@
+0.997698504027618
 int main()
 {
   int x;
@@ -24,7 +25,7 @@ int main()
       if ((a[i] % x) == 0)
       {
         k++;
-        v[k] = a[i];
+        v[k] = a[j];
       }
       i++;
     }
@@ -58,7 +59,7 @@ int main()
   {
     if ((b[j] % x) == 0)
     {
-      k++;
+      i++;
       v[k] = a[j];
     }
   }
@@ -66,7 +67,6 @@ int main()
   for (int i = 1; i <= k; i++)
     printf("%d ", v[i]);
 
-  return 0;
   return 0;
 }
 

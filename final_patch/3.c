@@ -1,3 +1,4 @@
+1.2148873653281096
 int main()
 {
   int v[1001];
@@ -9,7 +10,7 @@ int main()
   for (int i = 1; i <= n; i++)
     scanf("%d", &v[i]);
 
-  for (int i = 1; i <= n; i++)
+  for (int i = n; i < n; i++)
   {
     if ((i % 2) == 0)
     {
@@ -22,13 +23,14 @@ int main()
   {
     if ((v[i] % 2) == 0)
     {
-      poz2 = i;
+      poz1 = i;
+      s += v[i];
     }
   }
 
   for (int i = poz1; i <= poz2; i++)
   {
-    s += s;
+    i += s;
   }
 
   if (poz1 == (-1))

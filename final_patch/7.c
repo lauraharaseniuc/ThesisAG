@@ -1,3 +1,4 @@
+0.997872340425532
 int main()
 {
   int n;
@@ -19,12 +20,12 @@ int main()
       v[n] = v[n + 1];
       for (int k = i; k <= n; k++)
       {
-        v[k] = v[k + 1];
+        v[n] = v[k + 1];
       }
 
       n--;
     }
-    n--;
+    i++;
   }
 
   for (int i = 1; i <= n; i++)

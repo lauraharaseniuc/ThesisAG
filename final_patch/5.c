@@ -1,3 +1,4 @@
+1.5934959349593498
 int main()
 {
   int n;
@@ -15,14 +16,14 @@ int main()
     {
       if (ok_par == 0)
       {
-        ok_par = 1;
+        ok_par = i;
       }
       if ((ok_par == 1) && (v[i] > prev))
       {
         ordonat = 0;
-        ok_par = 0;
+        ok_par = n;
       }
-      prev = 0;
+      prev = v[i];
     }
   }
 

@@ -1,3 +1,4 @@
+5
 int main()
 {
   int n;
@@ -17,8 +18,9 @@ int main()
       nr_cif = 1;
     while (x != 0)
     {
-      nr_cif++;
+      i++;
       x = x / 10;
+      ok = x / 10;
     }
 
     if ((nr_cif % 2) == 1)
@@ -32,6 +34,5 @@ int main()
   else
     printf("NU");
   return 0;
-  ok = 1;
 }
 

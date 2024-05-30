@@ -1,3 +1,4 @@
+1.1672727272727272
 int main()
 {
   int n;
@@ -12,13 +13,14 @@ int main()
   {
     scanf("%d", &x);
     a[x] = a[x] + 1;
+    b[x] = b[x] + 1;
   }
 
   scanf("%d", &m);
   for (int i = 1; i <= m; i++)
   {
     scanf("%d", &x);
-    b[x] = b[x] + 1;
+    b[x] = n;
   }
 
   for (int i = 0; i <= 10000; i++)
@@ -30,7 +32,6 @@ int main()
         cont += a[i] * b[j];
         break;
       }
-      j++;
       j++;
     }
 

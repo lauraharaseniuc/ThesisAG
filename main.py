@@ -354,7 +354,7 @@ def delete_statement(chromosome, statement_id, statement):
 
 
 def mutate(chromosome):
-    w_mut = 0.06
+    w_mut = 0.1
     statement_count = chromosome.statement_count
     initial_statement_count = chromosome.initial_statement_count
     statements = chromosome.statements
@@ -448,7 +448,7 @@ def calculate_fitness(ast, problem_id, test_no, initial_prog):
     if similarity_percent == 1:
         result = {'fitness': 0, 'no_passed_tests': no_of_passed_tests}
     else:
-        result = {'fitness': percent_of_passed_tests + similarity_percent, 'no_passed_tests' : no_of_passed_tests}
+        result = {'fitness': (1+percent_of_passed_tests) * similarity_percent, 'no_passed_tests' : no_of_passed_tests}
     return result
 
 
@@ -532,7 +532,32 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
 
             offsprings.append(mutate(child1))
             offsprings.append(mutate(child2))
-
+#         textul = """int main() {
+#     int n, p, m, a[10001]={0}, b[10001]={0}, cont=0, x;
+#     scanf("%d%d", &n, &p);
+#     for (int i=1; i<=n; i++) {
+#         scanf("%d", &x);
+#         a[x]=a[x]+1;
+#     }
+#     scanf("%d", &m);
+#     for (int i=1; i<=m; i++) {
+#         scanf("%d", &x);
+#        	b[x]=b[x]+1;
+#     }
+#     for (int i=0; i<=10000; i++) {
+#         for (int j=0; j<=10000; j++) {
+#             if (i*j>=p)
+#             {
+#                 break;
+#             }
+#             cont+=a[i]*b[j];
+#         }
+#     }
+#     printf("%d", cont);
+#     return 0;
+# }"""
+#         if current_epoch==2:
+#             offsprings[0].ast=c_parser.CParser().parse(textul)
         for i in range(len(offsprings)):
             try:
                 offsprings[i].fitness = calculate_fitness(offsprings[i].ast, problem_id, 5, initial_prog)
@@ -563,6 +588,8 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
         average_time_per_epoch.append(elapsed_time)
         average_fitness_per_epoch.append(average_fitness / (len(new_population)))
         epochs.append(current_epoch)
+
+        print(str(current_epoch) + " "+str(len(new_population)))
 
         current_epoch += 1
 
@@ -607,9 +634,9 @@ if __name__ == "__main__":
     # final_C_patch = generator.visit(final_patch)
     # with open("./final_patch/"+str(submision_id)+".c", 'w') as f:
     #     f.write(final_C_patch)
-    for i in range(0,1):
+    for i in range(2, 10):
         submision_id = i
-        res= ag(submision_id, i+1, "problems/"+str(i)+".c", 30, 10)
+        res= ag(submision_id, i+1, "problems/"+str(i)+".c", 200, 20)
         final_patch = res['sol']
         fitness = res['fitness']
         generator = c_generator.CGenerator()
