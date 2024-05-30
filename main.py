@@ -1,6 +1,7 @@
 import copy
 import random
 import signal
+import sys
 from difflib import SequenceMatcher
 
 import matplotlib.pyplot as plt
@@ -445,8 +446,10 @@ def calculate_fitness(ast, problem_id, test_no, initial_prog):
     matcher = SequenceMatcher(None, chromosome_prog, initial_prog)
 
     similarity_percent = matcher.ratio()
-    print(similarity_percent)
-    result = {'fitness': percent_of_passed_tests + similarity_percent, 'no_passed_tests' : no_of_passed_tests}
+    if similarity_percent > 0.98:
+        result = {'fitness': 0.5, 'no_passed_tests': no_of_passed_tests}
+    else:
+        result = {'fitness': percent_of_passed_tests * similarity_percent, 'no_passed_tests': no_of_passed_tests}
     return result
 
 
@@ -460,7 +463,14 @@ def sample(population, population_size):
     return sorted_data[:population_size]
 
 
-def ag(submission_id, problem_id, program_path, population_size, no_epochs):
+def save_sol_in_file(chromosome, run_id):
+    program = c_generator.CGenerator().visit(chromosome.ast)
+    with open("./exp2/results.txt", 'a') as f:
+        f.write(str(program)+"\n")
+        f.write(str(run_id)+"\n\n")
+
+
+def ag(submission_id, problem_id, program_path, population_size, no_epochs, run_id):
     extracted = extract_statements_and_weights(submission_id, program_path, problem_id)
     statements = extracted['statements']
     weights = extracted['suspiciousness']
@@ -469,8 +479,9 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
     parent = extracted['parent']
     pos_in_parent = extracted['pos_in_parent']
 
+    generator = c_generator.CGenerator()
+
     initial_prog = c_generator.CGenerator().visit(initial_ast)
-    print(initial_prog)
 
     chromosome = Chromosome(statements, weights, parent, pos_in_parent, statement_count, initial_ast)
 
@@ -526,7 +537,8 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
         for p in new_population:
             average_fitness += p.fitness['fitness']
             if p.fitness['no_passed_tests'] == max_fitness:
-                print("am gasit unaaaaaaaaaaaa")
+                print(c_generator.CGenerator().visit(p.ast))
+                save_sol_in_file(p, run_id)
                 solution_found = True
                 solution = p
                 break
@@ -543,7 +555,6 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
         average_fitness_per_epoch.append(average_fitness / (len(new_population)))
         epochs.append(current_epoch)
 
-        print(current_epoch)
         current_epoch += 1
 
     save_dir = 'plots'
@@ -581,24 +592,24 @@ def ag(submission_id, problem_id, program_path, population_size, no_epochs):
 
 
 if __name__ == "__main__":
-    # submision_id = 1
-    # final_patch = ag(submision_id, 2, "problems/1.c", 10)
-    # generator = c_generator.CGenerator()
-    # final_C_patch = generator.visit(final_patch)
-    # with open("./final_patch/"+str(submision_id)+".c", 'w') as f:
-    #     f.write(final_C_patch)
-    for i in range(1,2):
-        submision_id = i
-        res= ag(submision_id, i+1, "problems/"+str(i)+".c", 120, 15)
-        final_patch = res['sol']
-        fitness = res['fitness']
-        generator = c_generator.CGenerator()
-        final_C_patch = generator.visit(final_patch)
-        with open("./final_patch/" + str(submision_id) + ".c", 'w') as f:
-            f.write(str(fitness)+"\n")
-            f.write(final_C_patch)
-        print("doneeeeeeeeeeeeeeeee")
-    # ag(0, 1, "problems/0.c", 10)
+    # for i in range(2,3):
 
-# print("After:")
-# ast.show(offset=2)
+    run_id = int(sys.argv[1])
+    population_size = int(sys.argv[2])
+    epochs = int(sys.argv[3])
+    print(run_id)
+    print(population_size)
+    print(epochs)
+    print()
+
+    submision_id = 2
+    res= ag(submision_id, 3, "problems/2.c", population_size, epochs, run_id)
+
+    final_patch = res['sol']
+    fitness = res['fitness']
+    generator = c_generator.CGenerator()
+    final_C_patch = generator.visit(final_patch)
+    with open("./final_patch/" + str(submision_id) + ".c", 'w') as f:
+        f.write(str(fitness)+"\n")
+        f.write(final_C_patch)
+    print("doneeeeeeeeeeeeeeeee")

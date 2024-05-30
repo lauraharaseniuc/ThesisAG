@@ -1,4 +1,4 @@
-0.9766187050359713
+0.5
 int main()
 {
   int n;
@@ -13,13 +13,6 @@ int main()
   {
     scanf("%d", &x);
     a[x] = a[x] + 1;
-    j++;
-    for (int i = cont; i >= cont; j++)
-    {
-      scanf("%d", &x);
-      b[x] = b[x] + 1;
-    }
-
   }
 
   scanf("%d", &m);
@@ -27,33 +20,21 @@ int main()
   {
     scanf("%d", &x);
     b[x] = b[x] + 1;
-    break;
   }
 
-  for (int i = i; i < (a[x] + 1); i++)
+  for (int i = 0; i <= 10000; i++)
   {
     for (int j = 0; j <= 10000; j++)
     {
       if ((i * j) >= p)
       {
-        cont += a[i] * b[j];
-        cont += a[i] * b[j];
+        a[x] += a[i] * b[j];
         break;
       }
       j++;
-      for (int i = 1; i <= m; i++)
-      {
-        scanf("%d", &x);
-        b[x] = b[x] + 1;
-      }
-
-      b[x] = b[x] + 1;
-      b[x] = b[x] + 1;
-      break;
       break;
     }
 
-    cont += a[i] * b[j];
   }
 
   printf("%d", cont);

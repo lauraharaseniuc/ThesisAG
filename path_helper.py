@@ -28,6 +28,8 @@ def traverse_statement(stmt, copy_stmt):
     global pos_in_parent
     global st_to_id
 
+    initial_statement_count = copy.deepcopy(statement_count)
+
     for node, copy_node in zip(stmt, copy_stmt):
         if isinstance(node, c_ast.Compound):
             size = len(node.block_items)
@@ -64,6 +66,9 @@ def traverse_statement(stmt, copy_stmt):
 
                     traverse_statement(node.block_items[child_no], copy_node.block_items[i])
                     child_no += 1
+                elif is_scanf_or_printf(node.block_items[child_no]):
+                    if initial_statement_count in statements:
+                        del statements[initial_statement_count]
                 i+=1
 
 
@@ -111,13 +116,6 @@ def build_trace_program(file, submission_id, traced_tests_path):
                 child_no+=1
             i+=1
 
-    # for key, value in statements.items():
-    #     print(key)
-    #     if isinstance(value, list):
-    #         print(value)
-    #     else:
-    #         print(value.show())
-    #     print()
     initial_ast.ext[0].body.block_items.insert(0, trace_result_fp)
 
     return {'traced_program': initial_ast, 'statement_count': statement_count, 'statements': statements, 'initial_ast':copy_ast, 'parent':parent, 'pos_in_parent':pos_in_parent, 'st_to_id':st_to_id}
